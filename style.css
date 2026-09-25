@@ -1,0 +1,181 @@
+/* ===== Firmware — estética 8-bit / retro console ===== */
+:root{
+  --bg:#0b0d1a;
+  --bg2:#12152b;
+  --panel:#161a33;
+  --ink:#f5f5e8;
+  --muted:#9aa0c4;
+  --red:#ff2d2d;
+  --red-d:#b00000;
+  --green:#39ff14;
+  --cyan:#2ce8f5;
+  --yellow:#ffd23f;
+  --line:#2a2f55;
+  --px:#000;
+}
+*{box-sizing:border-box}
+img,.logo,.ic{image-rendering:pixelated;image-rendering:crisp-edges}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'VT323','Courier New',monospace;
+  font-size:22px;
+  line-height:1.35;
+  letter-spacing:.5px;
+  text-shadow:0 2px 0 rgba(0,0,0,.6);
+}
+/* CRT scanline overlay */
+body::before{
+  content:"";
+  position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0) 2px,
+    rgba(0,0,0,.14) 3px,
+    rgba(0,0,0,.14) 4px);
+  mix-blend-mode:multiply;
+}
+.container{max-width:960px;margin:0 auto;padding:0 20px}
+
+h1,h2,h3,.btn,.badge,.chip,.tag,th{
+  font-family:'Press Start 2P','VT323',monospace;
+  letter-spacing:0;
+  line-height:1.5;
+  text-shadow:3px 3px 0 var(--px);
+}
+
+/* ===== header ===== */
+header{
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,45,45,.18), transparent 60%),
+    var(--bg2);
+  border-bottom:4px solid var(--red);
+  padding:48px 0 40px;
+  text-align:center;
+  box-shadow:0 4px 0 var(--red-d), 0 8px 0 #000;
+}
+header .logo{
+  font-size:64px;
+  filter:drop-shadow(4px 4px 0 #000);
+  animation:bob 1.2s steps(2) infinite;
+}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+h1{font-size:38px;margin:14px 0 8px;color:var(--red);text-shadow:4px 4px 0 var(--px)}
+h1 .accent{color:var(--green)}
+.tagline{max-width:640px;margin:12px auto 0;color:var(--ink);font-size:22px}
+.tagline a,a{color:var(--cyan);text-decoration:none;border-bottom:2px dotted var(--cyan)}
+a:hover{color:var(--yellow);border-color:var(--yellow)}
+.badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:22px}
+.badge{
+  font-size:9px;background:var(--panel);color:var(--green);
+  padding:8px 10px;border:3px solid var(--green);
+  box-shadow:3px 3px 0 #000;
+}
+
+/* ===== sections ===== */
+section{padding:40px 0;border-bottom:2px dashed var(--line)}
+h2{
+  font-size:20px;color:var(--yellow);margin:0 0 20px;
+  display:inline-block;padding-bottom:6px;border-bottom:4px solid var(--red);
+}
+h3{font-size:14px;color:var(--cyan);margin:0 0 10px}
+p{margin:0 0 14px}
+.meta,.tmeta{color:var(--muted);font-size:18px}
+strong{color:#fff}
+em{color:var(--yellow);font-style:normal}
+code{
+  font-family:'VT323',monospace;background:#000;color:var(--green);
+  padding:1px 6px;border:2px solid var(--line);font-size:18px;
+}
+
+/* ===== note / novidades ===== */
+.note{
+  background:var(--panel);border:4px solid var(--cyan);
+  box-shadow:6px 6px 0 #000;padding:16px 18px;
+}
+.note strong{color:var(--cyan)}
+
+/* ===== download primary ===== */
+.dl-primary{
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  background:linear-gradient(180deg,var(--panel),var(--bg2));
+  border:4px solid var(--red);box-shadow:8px 8px 0 #000;
+  padding:22px;
+}
+.dl-primary .logo{font-size:52px;filter:drop-shadow(3px 3px 0 #000)}
+.dl-primary .info{flex:1;min-width:240px}
+.dl-primary h3{color:#fff;font-size:13px}
+
+/* ===== buttons (NES cartridge) ===== */
+.btn{
+  display:inline-block;font-size:11px;
+  background:var(--red);color:#fff;text-decoration:none;border:none;
+  padding:14px 18px;
+  box-shadow:5px 5px 0 var(--red-d), 8px 8px 0 #000;
+  transition:transform .04s steps(1), box-shadow .04s steps(1);
+  white-space:nowrap;
+}
+.btn:hover{background:#ff4d4d;border:none;color:#fff}
+.btn:active{transform:translate(4px,4px);box-shadow:1px 1px 0 var(--red-d),3px 3px 0 #000}
+.btn.sec{background:var(--panel);color:var(--green);box-shadow:4px 4px 0 #000;font-size:10px;padding:10px 12px}
+.btn.sec:hover{background:#1d2246;color:var(--cyan)}
+
+.tag{font-size:8px;padding:5px 7px;border:2px solid #000;vertical-align:middle}
+.tag.new{background:var(--green);color:#003b00;box-shadow:2px 2px 0 #000;animation:blink 1.4s steps(2,end) infinite}
+@keyframes blink{0%,60%{opacity:1}61%,100%{opacity:.35}}
+
+/* ===== table ===== */
+table{width:100%;border-collapse:separate;border-spacing:0;border:4px solid var(--line);box-shadow:6px 6px 0 #000;background:var(--bg2)}
+th{background:var(--red);color:#fff;font-size:9px;text-align:left;padding:12px 10px;border-bottom:4px solid #000}
+td{padding:12px 10px;border-bottom:2px solid var(--line);vertical-align:top;font-size:18px}
+tr:last-child td{border-bottom:none}
+.hash{font-family:'VT323',monospace;color:var(--green);font-size:16px;word-break:break-all;max-width:340px}
+
+/* ===== grid cards ===== */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.card{background:var(--panel);border:4px solid var(--line);box-shadow:5px 5px 0 #000;padding:16px}
+.card .ic{font-size:40px;margin-bottom:8px;filter:drop-shadow(2px 2px 0 #000)}
+.card h3{color:var(--yellow)}
+.card p{font-size:18px;color:var(--muted);margin:0}
+
+/* ===== feature chips ===== */
+.feat{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 8px}
+.chip{
+  font-size:9px;background:var(--bg2);color:var(--ink);
+  padding:9px 10px;border:3px solid var(--red);box-shadow:3px 3px 0 #000;
+}
+
+/* ===== lists ===== */
+ul,ol{margin:0 0 14px;padding-left:26px}
+li{margin:0 0 8px}
+li::marker{color:var(--red)}
+
+/* ===== code blocks (terminal) ===== */
+pre{
+  background:#000;color:var(--green);border:3px solid var(--green);
+  box-shadow:6px 6px 0 #000;padding:16px;overflow-x:auto;
+  font-family:'VT323',monospace;font-size:18px;line-height:1.4;
+}
+pre code{background:none;border:none;padding:0;color:inherit}
+
+/* ===== warn ===== */
+.warn{
+  background:#2a0b0b;border:4px solid var(--red);color:#ffd7d7;
+  box-shadow:5px 5px 0 #000;padding:14px 16px;font-size:19px;
+}
+
+/* ===== footer ===== */
+footer{padding:30px 0;text-align:center;color:var(--muted);font-size:18px;border-top:4px solid var(--red)}
+
+/* ===== responsive ===== */
+@media(max-width:640px){
+  body{font-size:20px}
+  h1{font-size:26px}
+  h2{font-size:15px}
+  .hash{font-size:14px;max-width:180px}
+  .dl-primary{flex-direction:column;text-align:center}
+  .btn{white-space:normal}
+}

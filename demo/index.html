@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Firmware - UI demo</title>
+<style>
+  body{margin:0;background:#111;color:#ddd;font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;padding:24px}
+  h1{font-size:18px;margin:0 0 4px}
+  .note{font-size:13px;color:#aaa;max-width:680px;text-align:center;margin-bottom:16px}
+  .device{background:#2a2a2a;border-radius:28px;padding:22px 26px;box-shadow:0 8px 30px #000a;display:flex;align-items:center;gap:20px}
+  canvas{image-rendering:pixelated;width:640px;height:340px;background:#000;border:3px solid #000;border-radius:6px;max-width:80vw;height:auto}
+  .btns{display:flex;flex-direction:column;gap:10px}
+  button{background:#444;color:#eee;border:0;border-radius:50%;width:54px;height:54px;font-size:13px;cursor:pointer}
+  button:active{background:#666}
+  .keys{font-size:12px;color:#888;margin-top:14px}
+</style>
+</head>
+<body>
+<h1>Firmware - UI demo</h1>
+<div class="note">This is a browser simulation of the Firmware interface (menus, theme, languages). It is <b>not</b> the real firmware: radio, Wi-Fi, Bluetooth and all tools need a real board. Based on Bruce by pr3y (AGPL-3.0). Made by larpmaster.</div>
+<div class="device">
+  <canvas id="scr" width="320" height="170"></canvas>
+  <div class="btns">
+    <button id="bPrev">&#9650;</button>
+    <button id="bSel">OK</button>
+    <button id="bNext">&#9660;</button>
+    <button id="bBack">Back</button>
+  </div>
+</div>
+<div class="keys">Keyboard: arrows = navigate, Enter = select, Esc/Backspace = back</div>
+<script>
+const CAT_PNG="data:image/png;base64,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";
+const W=320,H=170, c=document.getElementById('scr'), g=c.getContext('2d');
+g.imageSmoothingEnabled=false;
+
+// ---- settings (saved in the browser, like the config file on the board)
+const S=Object.assign({lang:0,color:'#ff0000',sec:'#c81c20',sound:true,wifiStart:false,insta:false,bright:100},
+  (function(){try{return JSON.parse(localStorage.getItem('fwdemo')||'{}')}catch(e){return {}}})());
+const save=()=>localStorage.setItem('fwdemo',JSON.stringify(S));
+
+// ---- translations: same strings as the firmware (EN, PT, ES, FR, DE)
+const LANGS=["English","Portugues","Espanol","Francais","Deutsch"];
+const T={
+"Main Menu":["Main Menu","Menu Principal","Menu Principal","Menu principal","Hauptmenue"],
+"Others":["Others","Outros","Otros","Autres","Andere"],
+"Clock":["Clock","Relogio","Reloj","Horloge","Uhr"],
+"Connect":["Connect","Conectar","Conectar","Connecter","Verbinden"],
+"Files":["Files","Arquivos","Archivos","Fichiers","Dateien"],
+"Config":["Config","Ajustes","Ajustes","Reglages","Einstellungen"],
+"JS Interpreter":["JS Interpreter","Interpretador JS","Interprete JS","Interpreteur JS","JS-Interpreter"],
+"Display & UI":["Display & UI","Tela e UI","Pantalla y UI","Ecran et UI","Anzeige & UI"],
+"Audio Config":["Audio Config","Audio","Audio","Audio","Audio"],
+"System Config":["System Config","Sistema","Sistema","Systeme","System"],
+"Power":["Power","Energia","Energia","Energie","Energie"],
+"About":["About","Sobre","Acerca de","A propos","Info"],
+"Back":["Back","Voltar","Volver","Retour","Zurueck"],
+"Brightness":["Brightness","Brilho","Brillo","Luminosite","Helligkeit"],
+"UI Color":["UI Color","Cor da UI","Color de UI","Couleur UI","UI-Farbe"],
+"Orientation":["Orientation","Orientacao","Orientacion","Orientation","Ausrichtung"],
+"Sound: ":["Sound: ","Som: ","Sonido: ","Son: ","Ton: "],
+"WiFi Startup: ":["WiFi Startup: ","WiFi no boot: ","WiFi al inicio: ","WiFi au demarrage: ","WiFi beim Start: "],
+"Language: ":["Language: ","Idioma: ","Idioma: ","Langue: ","Sprache: "],
+"Language":["Language","Idioma","Idioma","Langue","Sprache"],
+"Advanced":["Advanced","Avancado","Avanzado","Avance","Erweitert"],
+"Restart":["Restart","Reiniciar","Reiniciar","Redemarrer","Neustart"],
+"Power Off":["Power Off","Desligar","Apagar","Eteindre","Ausschalten"],
+"Sleep":["Sleep","Dormir","Dormir","Veille","Schlafen"],
+"Power Off Device?":["Power Off Device?","Desligar o aparelho?","Apagar el dispositivo?","Eteindre l'appareil?","Geraet ausschalten?"],
+"Yes":["Yes","Sim","Si","Oui","Ja"],
+"No":["No","Nao","No","Non","Nein"],
+"needs":["This feature needs\na real LilyGO board","Essa funcao precisa\nde uma placa LilyGO","Esta funcion necesita\nuna placa LilyGO","Cette fonction exige\nune carte LilyGO","Diese Funktion braucht\nein LilyGO-Board"],
+};
+const tr=k=>(T[k]?T[k][S.lang]:k);
+
+const COLORS=[["Default (Red)","#ff0000","#c81c20"],["White","#ffffff","#cccccc"],["Orange","#ff8800","#ffc080"],
+ ["Yellow","#ffff00","#cccc50"],["Green","#00ff00","#70bc20"],["Light Blue","#90dcf0","#d0f0f8"],["Blue","#0000ff","#0000c8"],["Purple (Bruce)","#a8007a","#c86cb0"]];
+
+// ---- screens
+const ROOT=["WiFi","BLE","RF","RFID","IR","FM","NRF24","Files","JS Interpreter","Clock","Others","Connect","Config"];
+let stack=[], screen=null, rootIdx=0;
+function needHw(title){ return {type:'msg',title,text:()=>tr('needs')}; }
+function menu(titleKey, itemsFn){ return {type:'menu',titleKey,itemsFn,idx:0}; }
+
+function configMenu(){ return menu('Config',()=>[
+  [tr('Display & UI'),()=>push(displayMenu())],
+  [tr('Audio Config'),()=>push(audioMenu())],
+  [tr('System Config'),()=>push(systemMenu())],
+  [tr('Power'),()=>push(powerMenu())],
+  [tr('About'),()=>push(aboutScreen())],
+  [tr('Main Menu'),()=>{stack=[];screen=null;}],
+]);}
+function displayMenu(){ return menu('Display & UI',()=>[
+  [tr('Brightness')+': '+S.bright+'%',()=>{S.bright=S.bright<=25?100:S.bright-25;save();}],
+  [tr('UI Color'),()=>push(colorMenu())],
+  [tr('Orientation'),()=>push(needHw('Orientation'))],
+  [tr('Back'),pop]]);}
+function colorMenu(){ return menu('UI Color',()=>[...COLORS.map(x=>[x[0],()=>{S.color=x[1];S.sec=x[2];save();pop();}]),[tr('Back'),pop]]);}
+function audioMenu(){ return menu('Audio Config',()=>[
+  [tr('Sound: ')+(S.sound?'ON':'OFF'),()=>{S.sound=!S.sound;save();}],[tr('Back'),pop]]);}
+function systemMenu(){ return menu('System Config',()=>[
+  ['InstaBoot: '+(S.insta?'ON':'OFF'),()=>{S.insta=!S.insta;save();}],
+  [tr('WiFi Startup: ')+(S.wifiStart?'ON':'OFF'),()=>{S.wifiStart=!S.wifiStart;save();}],
+  [tr('Language: ')+LANGS[S.lang],()=>push(langMenu())],
+  [tr('Advanced'),()=>push(needHw('Advanced'))],
+  [tr('Back'),pop]]);}
+function langMenu(){ const m=menu('Language',()=>LANGS.map((n,i)=>[n,()=>{S.lang=i;save();pop();}])); m.idx=S.lang; return m;}
+function powerMenu(){ return menu('Power',()=>[
+  [tr('Restart'),()=>{stack=[];screen=null;boot();}],
+  [tr('Power Off'),()=>push(menu('Power Off Device?',()=>[[tr('Yes'),()=>{stack=[];screen={type:'off'};}],[tr('No'),pop]]))],
+  [tr('Sleep'),()=>{stack=[];screen={type:'off'};}],
+  [tr('Back'),pop]]);}
+function aboutScreen(){ return {type:'msg',title:'About',text:()=>"Firmware (UI demo)\nBased on Bruce by pr3y\nMade by larpmaster\nwith help from Grok Bot"}; }
+
+function push(s){ if(screen) stack.push(screen); screen=s; }
+function pop(){ screen=stack.pop()||null; }
+
+// ---- drawing
+function frame(){ g.fillStyle='#000';g.fillRect(0,0,W,H); g.strokeStyle=S.color;g.lineWidth=2;g.strokeRect(3,3,W-6,H-6); }
+function text(s,x,y,size,col,align='center'){ g.fillStyle=col;g.font=`bold ${size}px monospace`;g.textAlign=align;g.textBaseline='middle';g.fillText(s,x,y); }
+function status(){ text('Firmware',12,14,11,S.color,'left'); text('100%',W-12,14,11,S.color,'right'); g.fillStyle=S.color;g.fillRect(8,24,W-16,1); }
+
+function drawRoot(){
+  frame(); status();
+  const name=ROOT[rootIdx], label=tr(name);
+  text('<',22,95,26,S.sec); text('>',W-22,95,26,S.sec);
+  g.strokeStyle=S.color; g.lineWidth=3; g.strokeRect(W/2-34,50,68,50);
+  text(name.slice(0,4).toUpperCase(),W/2,75,16,S.color);
+  text(label,W/2,125,label.length>12?16:20,S.color);
+  text((rootIdx+1)+'/'+ROOT.length,W/2,152,10,S.sec);
+}
+function drawMenu(m){
+  frame(); const items=m.itemsFn(); if(m.idx>=items.length)m.idx=items.length-1;
+  text(tr(m.titleKey),W/2,18,14,S.color); g.fillStyle=S.color;g.fillRect(8,30,W-16,1);
+  const rows=6, start=Math.max(0,Math.min(m.idx-2,items.length-rows));
+  for(let i=start;i<Math.min(items.length,start+rows);i++){
+    const y=46+(i-start)*20;
+    if(i===m.idx){ g.fillStyle=S.color;g.fillRect(10,y-9,W-20,18); text(items[i][0],20,y,12,'#000','left'); }
+    else text(items[i][0],20,y,12,S.color,'left');
+  }
+}
+function drawMsg(m){
+  frame(); text(tr(m.title),W/2,20,14,S.color); g.fillStyle=S.color;g.fillRect(8,32,W-16,1);
+  m.text().split('\n').forEach((l,i)=>text(l,W/2,60+i*20,12,S.color));
+  text('OK / '+tr('Back'),W/2,H-16,10,S.sec);
+}
+const catImg=new Image(); catImg.src=CAT_PNG;
+function tintedCat(){ // cat grayscale (alpha) tinted with the UI color, like the firmware blend
+  const o=document.createElement('canvas');o.width=catImg.width;o.height=catImg.height;const x=o.getContext('2d');
+  x.drawImage(catImg,0,0);x.globalCompositeOperation='source-in';x.fillStyle=S.color;x.fillRect(0,0,o.width,o.height);return o;}
+let booting=false;
+function boot(){ booting=true; screen={type:'boot'}; setTimeout(()=>{booting=false;screen=null;draw();},2600); draw(); }
+function drawBoot(){
+  g.fillStyle='#000';g.fillRect(0,0,W,H);
+  text('Made by larpmaster',W/2,10,9,S.sec);
+  if(catImg.complete&&catImg.width) g.drawImage(tintedCat(),(W-catImg.width)/2,(H-catImg.height)/2);
+  text('Firmware',44,H-14,14,S.color);
+}
+function draw(){
+  g.globalAlpha=1;
+  if(!screen) drawRoot();
+  else if(screen.type==='boot') drawBoot();
+  else if(screen.type==='menu') drawMenu(screen);
+  else if(screen.type==='msg') drawMsg(screen);
+  else if(screen.type==='off'){ g.fillStyle='#000';g.fillRect(0,0,W,H); text('(off - press OK)',W/2,H/2,10,'#333'); }
+  if(screen?.type!=='off'){ g.fillStyle='#000'; g.globalAlpha=(100-S.bright)/140; g.fillRect(0,0,W,H); g.globalAlpha=1; }
+}
+
+// ---- input
+function beep(){ if(!S.sound) return; try{const a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),v=a.createGain();o.frequency.value=1800;v.gain.value=0.03;o.connect(v);v.connect(a.destination);o.start();o.stop(a.currentTime+0.03);}catch(e){} }
+function act(k){
+  if(booting) return; beep();
+  if(screen?.type==='off'){ if(k==='sel') boot(); return; }
+  if(!screen){
+    if(k==='prev') rootIdx=(rootIdx+ROOT.length-1)%ROOT.length;
+    else if(k==='next') rootIdx=(rootIdx+1)%ROOT.length;
+    else if(k==='sel') push(ROOT[rootIdx]==='Config'?configMenu():needHw(ROOT[rootIdx]));
+  } else if(screen.type==='menu'){
+    const n=screen.itemsFn().length;
+    if(k==='prev') screen.idx=(screen.idx+n-1)%n;
+    else if(k==='next') screen.idx=(screen.idx+1)%n;
+    else if(k==='sel') screen.itemsFn()[screen.idx][1]();
+    else if(k==='back') pop();
+  } else if(screen.type==='msg'){ if(k==='sel'||k==='back') pop(); }
+  draw();
+}
+document.addEventListener('keydown',e=>{
+  const m={ArrowUp:'prev',ArrowLeft:'prev',ArrowDown:'next',ArrowRight:'next',Enter:'sel',' ':'sel',Escape:'back',Backspace:'back'}[e.key];
+  if(m){e.preventDefault();act(m);}
+});
+bPrev.onclick=()=>act('prev');bNext.onclick=()=>act('next');bSel.onclick=()=>act('sel');bBack.onclick=()=>act('back');
+catImg.onload=()=>{ if(screen?.type==='boot') draw(); };
+boot();
+</script>
+</body>
+</html>
