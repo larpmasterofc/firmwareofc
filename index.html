@@ -220,17 +220,32 @@ sha256sum firmware-t-display-s3.bin</code></pre>
       <div class="card"><h3>First boot</h3><p>Shows the same responsible-use notice as the firmware and this site.</p></div>
     </div>
     <div class="warn" style="margin-top:12px">
-      <strong>Work in progress:</strong> the branded menu, first-boot notice and navigation are done;
-      the radio functions are still being wired to the hardware. Final <code>.fap</code> coming soon.
+      <strong>Beta (v0.1):</strong> the branded menu, first-boot notice and navigation are done;
+      the radio functions are still being wired to the hardware (they open a
+      &ldquo;module wiring in progress&rdquo; screen for now).
     </div>
+
+    <div class="dl-primary" style="margin-top:16px">
+      <div class="info">
+        <h3>firmware_zero.fap <span class="tag new">FLIPPER</span></h3>
+        <p>Firmware Zero v0.1 for the <strong>Flipper Zero</strong>. Built for the
+          <strong>official Flipper firmware</strong> (release, API 87.1). Cat icon included.</p>
+        <div class="meta">5,408 bytes<br>
+          SHA-256: c83e8e130305afaf49ed6d0322ce3f1b6129a6c530ccdbe1eff5f8b5e708becc</div>
+      </div>
+      <a class="btn" href="downloads/firmware_zero.fap" download>Download .fap</a>
+    </div>
+
     <h3 style="margin-top:20px">Install</h3>
     <ol>
-      <li>Download the <code>.fap</code> (below, once released).</li>
-      <li>Copy it to your Flipper SD card under <code>apps/</code> (or use qFlipper).</li>
+      <li>Download <code>firmware_zero.fap</code> above.</li>
+      <li>Copy it to your Flipper SD card under <code>apps/Tools/</code> (or <code>apps/</code>), or use qFlipper.</li>
       <li>On the Flipper, open <strong>Apps</strong> and launch <strong>Firmware Zero</strong>.</li>
     </ol>
-    <p class="meta">Built for the Flipper firmware you run (official, Momentum, Unleashed or RogueMaster).
-      Match the build to your firmware to avoid API version errors.</p>
+    <div class="warn" style="margin-top:12px">
+      This build targets the <strong>official Flipper firmware</strong>. If you run
+      Momentum, Unleashed or RogueMaster, a matching build is needed to avoid API version errors.
+    </div>
   </div>
 </section>
 
