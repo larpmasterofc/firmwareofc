@@ -207,6 +207,33 @@ sha256sum firmware-t-display-s3.bin</code></pre>
   </div>
 </section>
 
+<section id="flipper">
+  <div class="container">
+    <h2>Firmware Zero (Flipper Zero plugin)</h2>
+    <p><strong>Firmware Zero</strong> is a companion app (<code>.fap</code>) for the
+      <strong>Flipper Zero</strong>. The Flipper uses a different chip (STM32WB55), so the
+      full ESP32 firmware does not run on it. This plugin brings the Firmware brand and menu
+      to the Flipper for the radios it has built in.</p>
+    <div class="grid">
+      <div class="card"><h3>What it uses</h3><p>Sub-GHz (CC1101), Infrared, NFC, RFID 125&nbsp;kHz, GPIO / ESP32 bridge.</p></div>
+      <div class="card"><h3>What it can't do</h3><p>WiFi and BLE: the Flipper has no native radio for them. Those need a LilyGO/ESP32 board.</p></div>
+      <div class="card"><h3>First boot</h3><p>Shows the same responsible-use notice as the firmware and this site.</p></div>
+    </div>
+    <div class="warn" style="margin-top:12px">
+      <strong>Work in progress:</strong> the branded menu, first-boot notice and navigation are done;
+      the radio functions are still being wired to the hardware. Final <code>.fap</code> coming soon.
+    </div>
+    <h3 style="margin-top:20px">Install</h3>
+    <ol>
+      <li>Download the <code>.fap</code> (below, once released).</li>
+      <li>Copy it to your Flipper SD card under <code>apps/</code> (or use qFlipper).</li>
+      <li>On the Flipper, open <strong>Apps</strong> and launch <strong>Firmware Zero</strong>.</li>
+    </ol>
+    <p class="meta">Built for the Flipper firmware you run (official, Momentum, Unleashed or RogueMaster).
+      Match the build to your firmware to avoid API version errors.</p>
+  </div>
+</section>
+
 <section id="features">
   <div class="container">
     <h2>Features</h2>
