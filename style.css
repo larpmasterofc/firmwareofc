@@ -123,7 +123,7 @@ code{
 .btn.sec{background:var(--panel);color:var(--green);box-shadow:4px 4px 0 #000;font-size:10px;padding:10px 12px}
 .btn.sec:hover{background:#1d2246;color:var(--cyan)}
 
-.tag{font-size:8px;padding:5px 7px;border:2px solid #000;vertical-align:middle;line-height:1;display:inline-block}
+.tag{font-family:'VT323',monospace;font-size:16px;letter-spacing:1px;text-transform:uppercase;text-shadow:none;padding:2px 8px;border:2px solid #000;vertical-align:middle;line-height:1.2;display:inline-block}
 .tag.new{background:var(--green);color:#003b00;box-shadow:2px 2px 0 #000}
 
 /* ===== table ===== */
