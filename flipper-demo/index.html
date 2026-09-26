@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:">
+<title>Firmware Zero - Flipper UI demo</title>
+<style>
+  :root{--fl:#ff8200;--fl-bg:#ff9a2e;--px:#111;}
+  *{box-sizing:border-box}
+  body{margin:0;background:#0d0f1a;color:#e8e8e8;font-family:system-ui,Segoe UI,Roboto,sans-serif;
+       min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px 16px}
+  h1{font-size:18px;margin:0 0 4px}
+  .sub{color:#9aa;font-size:13px;margin:0 0 18px;text-align:center;max-width:520px}
+  .device{background:#1b1e2e;border:2px solid #2a2f4a;border-radius:18px;padding:22px 22px 26px;box-shadow:0 10px 40px #0008;width:360px;max-width:100%}
+  /* Flipper screen: 128x64 scaled x3 = 384x192, but fit device width */
+  .screen-wrap{background:#111;padding:10px;border-radius:8px}
+  canvas{display:block;width:100%;height:auto;image-rendering:pixelated;background:var(--fl-bg);border-radius:3px}
+  .pad{margin-top:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;justify-items:center}
+  .pad .row{display:contents}
+  button.key{background:#2a2f4a;color:#fff;border:none;border-radius:10px;width:100%;padding:14px 0;font-size:15px;cursor:pointer;
+             box-shadow:0 3px 0 #121526}
+  button.key:active{transform:translateY(2px);box-shadow:0 1px 0 #121526}
+  button.ok{background:var(--fl)}
+  .keyrow{display:flex;gap:10px;margin-top:10px}
+  .keyrow button{flex:1}
+  .hint{color:#8a90ad;font-size:12px;margin-top:16px;text-align:center;line-height:1.5}
+  .back{margin-top:20px}
+  .back a{color:#5cc8ff;font-size:13px;text-decoration:none}
+</style>
+</head>
+<body>
+  <h1>Firmware Zero &mdash; UI demo</h1>
+  <p class="sub">Simulation of the Flipper Zero screen (128&times;64). This mirrors the plugin's real menu and screens; it is not the actual app and does not run any radios. Use the arrows and OK, or your keyboard.</p>
+
+  <div class="device">
+    <div class="screen-wrap">
+      <canvas id="scr" width="128" height="64" aria-label="Flipper screen"></canvas>
+    </div>
+
+    <div class="pad">
+      <span></span>
+      <button class="key" data-k="up">&#9650;</button>
+      <span></span>
+      <button class="key" data-k="left">&#9664;</button>
+      <button class="key ok" data-k="ok">OK</button>
+      <button class="key" data-k="right">&#9654;</button>
+      <span></span>
+      <button class="key" data-k="down">&#9660;</button>
+      <span></span>
+    </div>
+    <div class="keyrow">
+      <button class="key" data-k="back">Back</button>
+    </div>
+    <p class="hint">Keyboard: arrows move, Enter = OK, Backspace = Back.</p>
+  </div>
+
+  <p class="back"><a href="../">&larr; Back to firmware site</a></p>
+
+<script>
+(function(){
+  var c=document.getElementById('scr'), x=c.getContext('2d');
+  var W=128,H=64;
+
+  // State: which view. 'disclaimer' first time, else 'menu'.
+  var accepted=false;
+  try{ accepted = localStorage.getItem('fz_accepted')==='1'; }catch(e){ accepted=false; }
+  var view = accepted ? 'menu' : 'disclaimer';
+  var sel=0, scroll=0;
+
+  var items=[
+    {t:'Sub-GHz',    title:'Sub-GHz',       body:['Native CC1101 radio','(300-928 MHz).','v0.1 skeleton: module','wiring in progress.','Authorized testing only.']},
+    {t:'Infrared',   title:'Infrared',      body:['Native IR TX/RX.','v0.1 skeleton: module','wiring in progress.']},
+    {t:'NFC',        title:'NFC',           body:['Native NFC','(13.56 MHz).','v0.1 skeleton: module','wiring in progress.']},
+    {t:'RFID 125kHz',title:'RFID 125kHz',   body:['Native low-frequency','RFID.','v0.1 skeleton: module','wiring in progress.']},
+    {t:'GPIO / ESP32',title:'GPIO / ESP32', body:['For WiFi/BLE, attach an','ESP32 dev board and flash','the ESP32 build of','Firmware. The Flipper has','no native WiFi/BLE.']},
+    {t:'About',      title:'Firmware Zero',  body:['Firmware Zero v0.1','by larpmasterofc','AGPL-3.0 (based on','Bruce by pr3y)','Authorized testing only.']}
+  ];
+  var info=null; // current info screen object
+  var infoScroll=0;
+
+  var discLines=[
+    'For AUTHORIZED security',
+    'testing only. Use only on',
+    'networks and devices you',
+    'own or have permission to',
+    'test. Misuse is your sole',
+    'responsibility; the author',
+    'is not liable.'
+  ];
+  var discScroll=0;
+
+  function clr(){ x.fillStyle='#ff9a2e'; x.fillRect(0,0,W,H); x.fillStyle='#111'; }
+  function txt(s,px,py){ x.fillStyle='#111'; x.font='8px monospace'; x.textBaseline='top'; x.fillText(s,px,py); }
+
+  function drawMenu(){
+    clr();
+    // header inverted bar
+    x.fillStyle='#111'; x.fillRect(0,0,W,12);
+    x.fillStyle='#ff9a2e'; x.font='8px monospace'; x.textBaseline='top';
+    x.fillText('Firmware Zero',3,2);
+    // items, 5 visible rows below header (rows ~10px)
+    var rows=5, rowH=10, top=13;
+    if(sel<scroll) scroll=sel;
+    if(sel>scroll+rows-1) scroll=sel-rows+1;
+    for(var i=0;i<rows;i++){
+      var idx=scroll+i; if(idx>=items.length) break;
+      var y=top+i*rowH;
+      if(idx===sel){ x.fillStyle='#111'; x.fillRect(0,y,W,rowH); x.fillStyle='#ff9a2e'; }
+      else { x.fillStyle='#111'; }
+      x.font='8px monospace';
+      x.fillText(items[idx].t, 4, y+1);
+    }
+    // scrollbar hint
+  }
+
+  function drawInfo(){
+    clr();
+    x.fillStyle='#111'; x.font='8px monospace'; x.textBaseline='top';
+    // title centered
+    var t=info.title; var tw=x.measureText(t).width;
+    x.fillText(t, (W-tw)/2, 2);
+    var top=16, lh=9, rows=5;
+    for(var i=0;i<rows;i++){
+      var idx=infoScroll+i; if(idx>=info.body.length) break;
+      x.fillText(info.body[idx], 0, top+i*lh);
+    }
+  }
+
+  function drawDisclaimer(){
+    clr();
+    x.fillStyle='#111'; x.font='8px monospace'; x.textBaseline='top';
+    var t='Firmware Zero'; var tw=x.measureText(t).width;
+    x.fillText(t,(W-tw)/2,0);
+    var top=13, lh=8, rows=4;
+    for(var i=0;i<rows;i++){
+      var idx=discScroll+i; if(idx>=discLines.length) break;
+      x.fillText(discLines[idx],0,top+i*lh);
+    }
+    // Accept button bottom center inverted
+    var bw=44,bh=11,bx=(W-bw)/2,by=H-bh-1;
+    x.fillStyle='#111'; x.fillRect(bx,by,bw,bh);
+    x.fillStyle='#ff9a2e'; x.font='8px monospace';
+    var bt='Accept'; var btw=x.measureText(bt).width;
+    x.fillText(bt,bx+(bw-btw)/2,by+2);
+  }
+
+  function render(){
+    if(view==='disclaimer') drawDisclaimer();
+    else if(view==='menu') drawMenu();
+    else if(view==='info') drawInfo();
+  }
+
+  function key(k){
+    if(view==='disclaimer'){
+      if(k==='up' && discScroll>0) discScroll--;
+      else if(k==='down' && discScroll < discLines.length-4) discScroll++;
+      else if(k==='ok'){ accepted=true; try{localStorage.setItem('fz_accepted','1');}catch(e){} view='menu'; }
+    } else if(view==='menu'){
+      if(k==='up'){ sel=(sel-1+items.length)%items.length; }
+      else if(k==='down'){ sel=(sel+1)%items.length; }
+      else if(k==='ok'){ info=items[sel]; infoScroll=0; view='info'; }
+    } else if(view==='info'){
+      if(k==='up' && infoScroll>0) infoScroll--;
+      else if(k==='down' && infoScroll < info.body.length-5) infoScroll++;
+      else if(k==='back'){ view='menu'; }
+    }
+    if(k==='back' && view==='info'){ view='menu'; }
+    render();
+  }
+
+  document.querySelectorAll('button.key').forEach(function(b){
+    b.addEventListener('click',function(){ key(b.getAttribute('data-k')); });
+  });
+  document.addEventListener('keydown',function(e){
+    var m={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',Enter:'ok',Backspace:'back'};
+    if(m[e.key]){ e.preventDefault(); key(m[e.key]); }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
